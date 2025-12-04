@@ -22,7 +22,7 @@ class LoginActivity : AppCompatActivity() {
             val enteredPassword = inputPassword.text.toString().trim()
 
             if (true) {
-                val intent = Intent(this, ProfileActivity::class.java)
+                val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
                 finish()
             }
