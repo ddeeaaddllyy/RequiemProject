@@ -19,13 +19,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var projectionManager: MediaProjectionManager
-
-    // Лаунчер для обработки результата разрешения на захват экрана
     private val screenCaptureLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-            // Пользователь разрешил доступ!
             startBackgroundWork(result.resultCode, result.data!!)
         } else {
             Toast.makeText(requireContext(), "В доступе отказано", Toast.LENGTH_SHORT).show()
@@ -35,13 +32,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Настройка списков языков
         setupLanguageDropdowns(view)
 
-        // 2. Инициализация менеджера проекции
         projectionManager = requireContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
 
-        // 3. Кнопка "Начать"
         val startButton = view.findViewById<Button>(R.id.button_start_translation)
         startButton.setOnClickListener {
             requestScreenCapture()
@@ -61,7 +55,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun requestScreenCapture() {
-        // Создаем интент для системного диалога "Разрешить запись экрана?"
         val captureIntent = projectionManager.createScreenCaptureIntent()
         screenCaptureLauncher.launch(captureIntent)
     }
