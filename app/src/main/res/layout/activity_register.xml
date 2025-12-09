@@ -111,7 +111,7 @@
                 app:boxStrokeColor="#B71C1C"
                 app:hintTextColor="#FF6B6B"
                 app:startIconDrawable="@null"
-                app:passwordToggleEnabled="true"
+                app:passwordToggleEnabled="false"
                 app:passwordToggleTint="#FF6B6B">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -134,7 +134,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginTop="24dp"
-        android:text="СОЗДАТЬ АККАУНТ"
+        android:text="@string/create_account_button_text"
         android:textSize="16sp"
         android:textColor="@android:color/white"
         android:backgroundTint="#D32F2F"
