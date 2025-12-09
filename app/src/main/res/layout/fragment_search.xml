@@ -1,20 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".SearchFragment">
+    android:background="#1A1A1A"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
 
     <TextView
-        android:layout_width="432dp"
-        android:layout_height="236dp"
-        android:text="Поиск"
-        android:textColor="#2C2C2C"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/text_search_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Вопросы?\nПопробуйте найти их тут"
+        android:textColor="#FF6B6B"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:lineSpacingExtra="4dp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <View
+        android:id="@+id/divider_top"
+        android:layout_width="120dp"
+        android:layout_height="3dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/ic_decorative_line_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_search_title" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_search"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="32dp"
+        app:cardBackgroundColor="#2C2C2C"
+        app:cardCornerRadius="12dp"
+        app:strokeColor="#B71C1C"
+        app:strokeWidth="2dp"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/divider_top">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_search_24"
+                app:tint="#FF6B6B"
+                android:contentDescription="Search Icon" />
+
+            <EditText
+                android:id="@+id/input_search"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:hint="Поиск ответа..."
+                android:textColorHint="#888888"
+                android:textColor="#F5F5F5"
+                android:textSize="16sp"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:maxLines="1"
+                android:layout_marginStart="12dp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_search_results"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/card_search"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@android:layout/simple_list_item_1"/>
+
+    <TextView
+        android:id="@+id/text_no_results"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Нет результатов. Попробуйте изменить запрос."
+        android:textColor="#B71C1C"
+        android:textStyle="italic"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/card_search"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="40dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
