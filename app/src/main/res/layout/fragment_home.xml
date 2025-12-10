@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#1A1A1A"
     android:padding="24dp"
-    tools:context=".HomeFragment">
+    tools:context=".ui.home.HomeFragment">
 
     <TextView
         android:id="@+id/text_home_title"
@@ -103,8 +103,6 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:cornerRadius="12dp"
-        app:icon="@drawable/ic_search_24"
-        app:iconGravity="textStart"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
