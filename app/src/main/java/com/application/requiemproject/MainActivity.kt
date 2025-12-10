@@ -3,6 +3,9 @@ package com.application.requiemproject
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.application.requiemproject.ui.home.HomeFragment
+import com.application.requiemproject.ui.profile.ProfileFragment
+import com.application.requiemproject.ui.search.SearchFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity: AppCompatActivity() {
