@@ -16,7 +16,7 @@
         android:theme="@style/Theme.RequiemProject">
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.auth.LoginActivity"
             android:exported="true"
             android:label="Log in account"
             android:theme="@style/Theme.RequiemProject">
@@ -28,7 +28,7 @@
         </activity>
 
         <activity
-            android:name=".RegisterActivity"
+            android:name=".ui.auth.RegisterActivity"
             android:exported="false"
             android:label="register RP"
             android:theme="@style/Theme.RequiemProject">
