@@ -13,12 +13,9 @@ import com.application.requiemproject.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class SearchFragment : Fragment(R.layout.fragment_search) {
+open class SearchFragment : Fragment(R.layout.fragment_search) {
 
     private lateinit var adapter: HelpAdapter
-    private val helpDao by lazy {
-        AppDatabase.getDatabase(requireContext()).helpDao()
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,19 +50,33 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             override fun afterTextChanged(s: Editable?) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                observeQuestion(s.toString())
+                val query = s.toString().trim()
+
+                filterQuestions(query)
             }
 
         })
 
     }
 
-    private fun observeQuestion(query: String){
-        viewLifecycleOwner.lifecycleScope.launch {
-            helpDao.searchHelpItems(query).collectLatest { items ->
-                adapter.updateList(items)
+    protected fun filterQuestions(query: String) {
+        val allQuestions = HelpData.getQuestions()
+
+        val filterList =
+            if (query.isEmpty()) {
+                allQuestions
+
+            } else {
+                allQuestions.filter { item ->
+                    item.question.contains(
+                        other = query,
+                        ignoreCase = true
+                    )
+                }
+
             }
-        }
+
+        adapter.updateList(filterList)
     }
 
 }
