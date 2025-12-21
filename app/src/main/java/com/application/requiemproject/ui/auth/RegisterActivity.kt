@@ -5,17 +5,24 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.application.requiemproject.ui.auth.LoginActivity
 import com.application.requiemproject.MainActivity
 import com.application.requiemproject.R
+import com.application.requiemproject.data.local.db.AppDatabase
+import com.application.requiemproject.data.local.entities.User
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.launch
 
 class RegisterActivity: AppCompatActivity() {
     lateinit var goToLoginButton: Button
     lateinit var createAccountButton: Button
     lateinit var inputLogin: TextInputEditText
     lateinit var inputPassword: TextInputEditText
+
+    private val db by lazy { AppDatabase.getDatabase(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,60 +34,80 @@ class RegisterActivity: AppCompatActivity() {
         inputPassword = findViewById(R.id.input_password)
 
         goToLoginButton.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            registerUser()
         }
 
         createAccountButton.isEnabled = false
         createAccountButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+
         }
 
-        inputLogin.addTextChangedListener(loginTextWatcher)
-        inputPassword.addTextChangedListener(passwordTextWatcher)
+        inputLogin.addTextChangedListener(textWatcher)
+        inputPassword.addTextChangedListener(textWatcher)
     }
 
-    private val passwordTextWatcher = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int ) {}
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+    private fun registerUser() {
+        val login = inputLogin.text.toString().trim()
+        val password = inputPassword.text.toString().trim()
 
-        override fun afterTextChanged(s: Editable?) {
-            val password = s.toString()
-            val isValid = isPasswordValid(password)
+        lifecycleScope.launch {
+            val existingUser = db.userDao().getUserByLogin(login)
 
-            if (isValid) {
-                inputPassword.error = null
-                createAccountButton.isEnabled = true
+            if (existingUser != null) {
+                inputLogin.error = "такой пользователь уже существует"
 
             } else {
-                inputPassword.error = getPasswordErrorText(password)
-                createAccountButton.isEnabled = false
-            }
+                val newUser = User(
+                    login = login,
+                    password = password,
+                    email = null
+                )
 
+                db.userDao().insertUser(newUser)
+
+                Toast.makeText(this@RegisterActivity, "Аккаунт создан", Toast.LENGTH_SHORT)
+
+                val intent = Intent(this@RegisterActivity, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
         }
     }
 
-    private val loginTextWatcher = object : TextWatcher {
+    private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
         override fun afterTextChanged(s: Editable?) {
-            val login = s.toString()
-
-            if (login.length >= 6) {
-                inputPassword.error = null
-                createAccountButton.isEnabled = true
-            } else {
-                inputPassword.error = "Пароль должен содержать минимум 6 символов"
-                createAccountButton.isEnabled = false
-            }
+            checkInputState()
 
         }
     }
 
+    private fun checkInputState() {
+        val login = inputLogin.text.toString()
+        val password = inputPassword.text.toString()
+        val isLoginValid = login.length >= 6
+        val isPasswordValid = isPasswordValid(password)
+
+        if (!isLoginValid && login.isNotEmpty()) {
+            inputLogin.error = "Логин слишком короткий"
+
+        } else {
+            inputLogin.error = null
+        }
+
+        if (!isPasswordValid && password.isNotEmpty()) {
+            inputPassword.error = getPasswordErrorText(password)
+        } else {
+            inputPassword.error = null
+        }
+
+        createAccountButton.isEnabled = isLoginValid && isPasswordValid
+    }
 }
+
 
 private fun isPasswordValid(password: String): Boolean {
     val isLengthValid = password.length >= 6
@@ -103,4 +130,3 @@ private fun getPasswordErrorText(password: String): String {
 
     return "Пароль должен содержать:\n" + errors.joinToString("\n")
 }
-
