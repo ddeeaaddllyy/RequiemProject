@@ -1,4 +1,4 @@
-package com.application.requiemproject.ui.search;
+package com.application.requiemproject.ui.search.support.data;
 
 
 import java.util.ArrayList;

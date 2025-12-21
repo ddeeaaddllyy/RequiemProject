@@ -6,12 +6,13 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.application.requiemproject.R
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import com.application.requiemproject.ui.search.support.HelpAdapter
+import com.application.requiemproject.ui.search.support.data.HelpData
+import com.application.requiemproject.ui.search.support.data.HelpItem
+import com.application.requiemproject.ui.search.support.SolutionBottomSheet
 
 open class SearchFragment : Fragment(R.layout.fragment_search) {
 
@@ -28,7 +29,7 @@ open class SearchFragment : Fragment(R.layout.fragment_search) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_search_results)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = HelpAdapter(emptyList()) { selectedItem ->
+        adapter = HelpAdapter(HelpData.getQuestions()) { selectedItem ->
             showSolutionBottomSheet(selectedItem)
         }
         recyclerView.adapter = adapter
