@@ -7,13 +7,17 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.application.requiemproject.R
+import com.application.requiemproject.data.local.db.AppDatabase
 import com.application.requiemproject.ui.auth.LoginActivity
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import com.application.requiemproject.ui.auth.SessionManager
+import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
+
+    private val sm by lazy { SessionManager(requireContext()) }
+    private val db by lazy { AppDatabase.getDatabase(requireContext()) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -22,13 +26,16 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val settingsButton = view.findViewById<Button>(R.id.button_settings)
         val usernameText = view.findViewById<TextView>(R.id.text_username)
 
-        usernameText.text = "Unknown"
+        loadUserData(usernameText)
 
         logoutButton.setOnClickListener {
+            sm.clearSession()
+
             Toast.makeText(requireContext(), "Выход из системы...", Toast.LENGTH_SHORT).show()
 
             val intent = Intent(requireContext(), LoginActivity::class.java)
             startActivity(intent)
+
             requireActivity().finish()
         }
 
@@ -36,4 +43,18 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             Toast.makeText(requireContext(), "Настройки", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun loadUserData(textView: TextView) {
+        val userId = sm.getUserId()
+
+        if (userId != -1L) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val user = db.userDao().getUserById(userId)
+                if (user != null) {
+                    textView.text = user.login
+                }
+            }
+        }
+    }
+
 }

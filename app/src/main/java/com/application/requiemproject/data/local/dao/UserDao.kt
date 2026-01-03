@@ -11,15 +11,16 @@ import com.application.requiemproject.data.local.entities.User
 @Dao
 interface UserDao {
 
-    @Nullable
-    @Query(value = "SELECT * FROM user WHERE login = :inputLogin")
+    @Query(value = "SELECT * FROM user WHERE login = :inputLogin LIMIT 1")
     suspend fun getUserByLogin(inputLogin: String): User?
 
-    @Nullable
-    @Query(value = "SELECT * FROM user WHERE email = :inputEmail")
+    @Query(value = "SELECT * FROM user WHERE email = :inputEmail LIMIT 1")
     suspend fun getUserByEmail(inputEmail: String): User?
 
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Query(value = "SELECT * FROM user WHERE id = :id LIMIT 1")
+    suspend fun getUserById(id: Long): User?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User)
 
     @Delete

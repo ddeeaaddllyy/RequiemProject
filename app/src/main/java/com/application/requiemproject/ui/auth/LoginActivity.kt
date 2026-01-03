@@ -18,11 +18,19 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         val db = AppDatabase.getDatabase(this)
+        val sm = SessionManager(this)
+        val intent = Intent(this, MainActivity::class.java)
 
         val buttonLogin = findViewById<Button>(R.id.button_login)
         val buttonRegister = findViewById<Button>(R.id.button_register)
         val inputLogin = findViewById<TextInputEditText>(R.id.input_login)
         val inputPassword = findViewById<TextInputEditText>(R.id.input_password)
+
+        if (sm.isLoggedIn()) {
+            startActivity(intent)
+            finish()
+            return Unit
+        }
 
         buttonLogin.setOnClickListener {
             val enteredLogin = inputLogin.text.toString().trim()
@@ -40,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
                 val user = db.userDao().getUserByLogin(enteredLogin)
 
                 if (user != null && enteredPassword == user.password) {
-                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    sm.saveSession(user.id)
                     startActivity(intent)
                     finish()
 
@@ -56,6 +64,7 @@ class LoginActivity : AppCompatActivity() {
         buttonRegister.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
 

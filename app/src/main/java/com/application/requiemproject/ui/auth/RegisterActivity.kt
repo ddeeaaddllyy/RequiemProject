@@ -8,7 +8,6 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.application.requiemproject.ui.auth.LoginActivity
 import com.application.requiemproject.MainActivity
 import com.application.requiemproject.R
 import com.application.requiemproject.data.local.db.AppDatabase
@@ -34,12 +33,14 @@ class RegisterActivity: AppCompatActivity() {
         inputPassword = findViewById(R.id.input_password)
 
         goToLoginButton.setOnClickListener {
-            registerUser()
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
         createAccountButton.isEnabled = false
         createAccountButton.setOnClickListener {
-
+            registerUser()
         }
 
         inputLogin.addTextChangedListener(textWatcher)
@@ -58,14 +59,19 @@ class RegisterActivity: AppCompatActivity() {
 
             } else {
                 val newUser = User(
+                    id = 0,
                     login = login,
+                    email = null,
                     password = password,
-                    email = null
+                    privilege = 0
                 )
 
                 db.userDao().insertUser(newUser)
 
-                Toast.makeText(this@RegisterActivity, "Аккаунт создан", Toast.LENGTH_SHORT)
+                val sm = SessionManager(this@RegisterActivity)
+                sm.saveSession(newUser.id)
+
+                Toast.makeText(this@RegisterActivity, "Аккаунт создан", Toast.LENGTH_SHORT).show()
 
                 val intent = Intent(this@RegisterActivity, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -88,7 +94,7 @@ class RegisterActivity: AppCompatActivity() {
     private fun checkInputState() {
         val login = inputLogin.text.toString()
         val password = inputPassword.text.toString()
-        val isLoginValid = login.length >= 6
+        val isLoginValid = login.length >= 5
         val isPasswordValid = isPasswordValid(password)
 
         if (!isLoginValid && login.isNotEmpty()) {
