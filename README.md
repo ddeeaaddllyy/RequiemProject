@@ -16,6 +16,7 @@ This project was developed as a technical research project to master Android arc
 </p>
 
 > *Note: The UI is currently in active development and may change.*
+> 
 > *Note: screenshots may not be displayed right now*
 
 ---
