@@ -27,7 +27,7 @@ This project was developed as a technical research project to master Android arc
 * **Dual AI Engines:** Toggle between **Google Translate** and **Gemini AI** for high-context translations.
 * **Overlay UI:** Non-intrusive translation results displayed over other applications.
 * **Local History:** Save and manage previous translations using **Room Database**.
-* **Clean Architecture:** Separated into Data, Domain, and UI layers for maximum maintainability.
+* **MVVM Architecture:** Separated into Data, Domain, and UI layers for maximum maintainability.
 * **Performance First:** Optimized with Kotlin Coroutines for smooth background processing.
 
 ---
@@ -78,7 +78,7 @@ This project was developed as a technical research project to master Android arc
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome!
-* Follow the **Clean Architecture** patterns already established.
+* Follow the **MVVM** patterns already established.
 * Ensure all code is documented.
 * Open a Pull Request (PR) for any major changes.
 
