@@ -38,15 +38,17 @@
             android:layout_height="wrap_content"
             android:padding="20dp">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_avatar"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="78dp"
+                android:layout_height="78dp"
                 android:src="@drawable/ic_account_24"
                 android:background="#B71C1C"
                 android:padding="8dp"
+                android:scaleType="fitCenter"
+                app:shapeAppearanceOverlay="@style/SoftRoundedCorners"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/text_username"
