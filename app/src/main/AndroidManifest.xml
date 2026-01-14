@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
+        tools:ignore="ForegroundServicesPolicy" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
 
     <application
@@ -18,11 +19,9 @@
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="true"
-            android:label="Log in account"
             android:theme="@style/Theme.RequiemProject">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -41,6 +40,13 @@
             android:label="Main menu"
             android:theme="@style/Theme.RequiemProject" >
         </activity>
+
+        <service
+            android:name=".services.ScreenCaptureService"
+            android:foregroundServiceType="mediaProjection"
+            android:enabled="true"
+            android:exported="false">
+        </service>
 
     </application>
 
