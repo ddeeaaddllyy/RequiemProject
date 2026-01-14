@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.application.requiemproject.R
 import com.application.requiemproject.data.local.db.AppDatabase
@@ -41,6 +43,14 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         settingsButton.setOnClickListener {
             Toast.makeText(requireContext(), "Настройки", Toast.LENGTH_SHORT).show()
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            v.setPadding(0, insets.top, 0, 0)
+            windowInsets
+
         }
     }
 
