@@ -1,4 +1,4 @@
-package com.application.requiemproject.data.local.db
+package com.application.requiemproject.data.converters
 
 import androidx.room.TypeConverter
 
