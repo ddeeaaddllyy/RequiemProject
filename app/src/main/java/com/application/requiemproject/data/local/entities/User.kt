@@ -14,10 +14,6 @@ data class User(
 
     var password: String,
 
-    // -1 - deleted user
-    // 0 - just user without premium
-    // 1 - user with premium
-    // 2 - moderator (idk why it is needed)
-    var privilege: Short = 0
+    var privilege: List<String>? = null
 
 )

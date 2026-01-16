@@ -59,11 +59,9 @@ class RegisterActivity: AppCompatActivity() {
 
             } else {
                 val newUser = User(
-                    id = 0,
                     login = login,
-                    email = null,
                     password = password,
-                    privilege = 0
+                    privilege = listOf("NEWCOMER!")
                 )
 
                 db.userDao().insertUser(newUser)

@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import com.application.requiemproject.data.local.dao.UserDao
 import com.application.requiemproject.data.local.entities.User
-
+@TypeConverters(value = [RoomTypeConverters::class])
 @Database(entities = [User::class], version = 1)
 abstract class AppDatabase: RoomDatabase() {
 
@@ -22,7 +24,11 @@ abstract class AppDatabase: RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "requiem_database"
-                ).build()
+                )
+                    .allowMainThreadQueries()
+                    //DELETE IN FINAL VERSION
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }
