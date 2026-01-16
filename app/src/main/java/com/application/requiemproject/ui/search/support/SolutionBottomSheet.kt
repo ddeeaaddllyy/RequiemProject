@@ -56,5 +56,5 @@ class SolutionBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    override fun getTheme(): Int = com.google.android.material.R.style.Theme_Design_BottomSheetDialog
+    override fun getTheme(): Int = R.style.BottomSheetTheme
 }
