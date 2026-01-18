@@ -1,9 +1,12 @@
 package com.application.requiemproject.ui.home
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
@@ -11,6 +14,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.application.requiemproject.R
 import com.application.requiemproject.services.ScreenCaptureService
@@ -24,8 +28,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
             startBackgroundWork(result.resultCode, result.data!!)
         } else {
-            Toast.makeText(requireContext(), "В доступе отказано", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "permission DENIED", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { result ->
+        if (result) {
+            Toast.makeText(requireContext(), "permission RECEIVED", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            Toast.makeText(requireContext(), "permission DENIED", Toast.LENGTH_SHORT)
+                .show()
+        }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,7 +54,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         val startButton = view.findViewById<Button>(R.id.button_start_translation)
         startButton.setOnClickListener {
-            requestScreenCapture()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (
+                    ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+                {
+                    requestScreenCapture()
+                } else {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            } else {
+                requestScreenCapture()
+            }
         }
     }
 
@@ -61,18 +88,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun startBackgroundWork(resultCode: Int, data: Intent) {
         Toast.makeText(requireContext(), "Запуск в фоне...", Toast.LENGTH_SHORT).show()
 
-         val serviceIntent = Intent(requireContext(), ScreenCaptureService::class.java)
-         serviceIntent.putExtra("RESULT_CODE", resultCode)
-         serviceIntent.putExtra("DATA", data)
-         requireContext().startForegroundService(serviceIntent)
+        val serviceIntent = Intent(requireContext(), ScreenCaptureService::class.java)
+        serviceIntent.putExtra("RESULT_CODE", resultCode)
+        serviceIntent.putExtra("DATA", data)
 
-        minimizeApp()
+        ContextCompat.startForegroundService(requireContext(), serviceIntent)
     }
 
-    private fun minimizeApp() {
-        val startMain = Intent(Intent.ACTION_MAIN)
-        startMain.addCategory(Intent.CATEGORY_HOME)
-        startMain.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(startMain)
-    }
 }
