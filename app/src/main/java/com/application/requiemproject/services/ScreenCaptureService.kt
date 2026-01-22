@@ -13,17 +13,16 @@ import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
 import com.application.requiemproject.R
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import androidx.core.graphics.createBitmap
 
 open class ScreenCaptureService: Service() {
 
@@ -48,15 +47,11 @@ open class ScreenCaptureService: Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val notification = createNotification()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(
-                NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
-            )
-        } else {
-            startForeground(NOTIFICATION_ID, notification)
-        }
+        startForeground(
+            NOTIFICATION_ID,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+        )
 
         val resultCode = intent?.getIntExtra("RESULT_CODE", -1) ?: -1
         val data = intent?.getParcelableExtra<Intent>("DATA")
@@ -79,24 +74,16 @@ open class ScreenCaptureService: Service() {
     }
 
     private fun setupVirtualDisplay() {
-        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         val width: Int
         val height: Int
         val density: Int
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics = windowManager.currentWindowMetrics
-            val bounds = windowMetrics.bounds
-            width = bounds.width()
-            height = bounds.height()
-            density = resources.displayMetrics.densityDpi
-        } else {
-            val metrics = DisplayMetrics()
-            windowManager.defaultDisplay.getRealMetrics(metrics)
-            width = metrics.widthPixels
-            height = metrics.heightPixels
-            density = metrics.densityDpi
-        }
+        val windowMetrics = windowManager.currentWindowMetrics
+        val bounds = windowMetrics.bounds
+        width = bounds.width()
+        height = bounds.height()
+        density = resources.displayMetrics.densityDpi
 
         Log.e("SERVICE_DEBUG", "Размеры для VirtualDisplay: $width x $height, Density: $density")
 
@@ -183,16 +170,14 @@ open class ScreenCaptureService: Service() {
     }
 
     protected fun createNotificationChannel(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelName = "Screen Capture Service"
-            val channel = NotificationChannel(CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH)
-                .apply {
-                description = "description"
-            }
-
-            val notificationManager: NotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val channelName = "Screen Capture Service"
+        val channel = NotificationChannel(CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH)
+            .apply {
+            description = "description"
         }
+
+        val notificationManager: NotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun imageToBitmap(image: android.media.Image): android.graphics.Bitmap? {
@@ -202,11 +187,7 @@ open class ScreenCaptureService: Service() {
         val rowStride = planes[0].rowStride
         val rowPadding = rowStride - pixelStride * image.width
 
-        val bitmap = android.graphics.Bitmap.createBitmap(
-            image.width + rowPadding / pixelStride,
-            image.height,
-            android.graphics.Bitmap.Config.ARGB_8888
-        )
+        val bitmap = createBitmap(image.width + rowPadding / pixelStride, image.height)
         bitmap.copyPixelsFromBuffer(buffer)
 
         return if (rowPadding != 0) {
