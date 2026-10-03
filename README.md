@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/ddeeaaddllyy/Requiem-Project/actions/workflows/ci.yml"><img src="https://github.com/ddeeaaddllyy/Requiem-Project/actions/workflows/ci.yml/badge.svg" alt="Android CI"></a>
   <img src="https://img.shields.io/badge/Android-12%2B-F51B42?style=flat-square&logo=android&logoColor=white" alt="Android 12+">
-  <img src="https://img.shields.io/badge/Kotlin-2.0.0-17171B?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin 2.0.0">
+  <img src="https://img.shields.io/badge/Kotlin-2.4.2-17171B?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin 2.0.0">
   <img src="https://img.shields.io/badge/UI-Jetpack_Compose-17171B?style=flat-square" alt="Jetpack Compose">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-D8B45B?style=flat-square" alt="Apache License 2.0"></a>
 </p>
@@ -233,7 +233,7 @@ Requiem-Project/
 | [Android CI](.github/workflows/ci.yml) | Push в ветки, pull request, ручной запуск и вызов из release | Debug APK, JVM-тесты, lint, тесты на Android 36 и отчёты |
 | [Android Release](.github/workflows/release.yml) | Тег `v*` или ручной запуск с существующим тегом | После CI: подписанные APK, AAB и `SHA256SUMS.txt` в GitHub Releases |
 
-Настройка signing secrets и публикация описаны в [инструкции по релизам](.github/README.md). Автоматическая публикация в Google Play не настроена.
+Настройка signing secrets и публикация описаны в [инструкции по релизам](.github/RELEASE.md). Автоматическая публикация в Google Play не настроена.
 
 ## Текущие ограничения
 

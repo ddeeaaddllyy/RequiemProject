@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp")
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.4.20"
 }
 
 android {
@@ -48,9 +48,6 @@ android {
         includeInBundle = true
     }
 }
-
-val room_version = "2.6.1"
-val retrofit_version = "2.9.0"
 
 dependencies {
     implementation(libs.koin.android)
