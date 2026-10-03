@@ -15,8 +15,8 @@ android {
         applicationId = "com.application.requiemproject"
         minSdk = 31
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.6.6-beta-unrelease"
+        versionCode = providers.gradleProperty("versionCode").map { it.toInt() }.getOrElse(1)
+        versionName = providers.gradleProperty("versionName").getOrElse("2.0.0")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
