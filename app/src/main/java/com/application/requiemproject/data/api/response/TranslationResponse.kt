@@ -8,7 +8,10 @@ import com.google.gson.annotations.SerializedName
  * @property responseData Contains translation result data.
  */
 data class TranslationResponse(
-    @field:SerializedName("responseData") val responseData: ResponseData?
+    @field:SerializedName("responseData") val responseData: ResponseData?,
+    @field:SerializedName("responseStatus") val responseStatus: Int? = null,
+    @field:SerializedName("responseDetails") val responseDetails: String? = null,
+    @field:SerializedName("quotaFinished") val quotaFinished: Boolean = false
 )
 
 /**

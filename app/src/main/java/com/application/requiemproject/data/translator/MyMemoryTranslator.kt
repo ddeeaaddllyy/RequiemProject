@@ -1,11 +1,13 @@
 package com.application.requiemproject.data.translator
 
 import android.util.Log
+import androidx.core.text.HtmlCompat
 import com.application.requiemproject.data.api.MyMemoryTranslationApi
 import com.application.requiemproject.domain.model.TranslationResult
 import com.application.requiemproject.data.local.dao.UserDao
 import com.application.requiemproject.data.local.SessionManager
 import com.application.requiemproject.domain.model.TranslatorModel
+import kotlinx.coroutines.CancellationException
 
 /**
  * Implementation of [TranslatorModel] that uses the MyMemory translation API.
@@ -43,30 +45,34 @@ class MyMemoryTranslator(
         return try {
             val userId = sessionManager.getUserId()
             val email = userDao.getEmailById(userId)
-            val response = api.getTranslateText(
-                text,
-                languages,
-                email
-            )
+            val paragraphs = TranslationInput.paragraphs(text)
+            if (paragraphs.isEmpty()) return TranslationResult.Error("Empty input")
+            val translatedParagraphs = mutableListOf<String>()
+            for (paragraph in paragraphs) {
+                val translatedSegments = mutableListOf<String>()
+                for (segment in TranslationInput.segments(paragraph)) {
+                    val response = api.getTranslateText(segment, languages, email)
 
-            if (!response.isSuccessful) {
-                return TranslationResult.Error(
-                    message = response.errorBody()?.string() ?: "Unknown api error"
-                )
+                    if (!response.isSuccessful) {
+                        return TranslationResult.Error(response.errorBody()?.string() ?: "Unknown api error")
+                    }
+                    val body = response.body()
+                    if (body == null || body.quotaFinished || body.responseStatus?.let { it != 200 } == true) {
+                        return TranslationResult.Error(body?.responseDetails?.takeIf { it.isNotBlank() }
+                            ?: "Translation service unavailable")
+                    }
+                    val translatedText = body.responseData?.translatedText
+                    if (translatedText.isNullOrBlank()) return TranslationResult.Error("Empty response")
+                    val decoded = HtmlCompat.fromHtml(translatedText, HtmlCompat.FROM_HTML_MODE_LEGACY).toString().trim()
+                    if (decoded.isBlank()) return TranslationResult.Error("Empty response")
+                    translatedSegments += decoded
+                }
+                translatedParagraphs += translatedSegments.joinToString(" ")
             }
+            TranslationResult.Success(translatedParagraphs.joinToString("\n\n"))
 
-            val translatedText = response.body()?.responseData?.translatedText
-
-            if (translatedText.isNullOrBlank()) {
-                return TranslationResult.Error(
-                    message = "Empty response"
-                )
-            }
-
-            TranslationResult.Success(
-                text = translatedText
-            )
-
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e("MyMemoryTranslator", "Exception during translation", e)
             TranslationResult.Error(
