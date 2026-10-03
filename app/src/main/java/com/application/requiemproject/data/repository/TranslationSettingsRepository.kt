@@ -1,49 +1,31 @@
 package com.application.requiemproject.data.repository
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.application.requiemproject.model.AppLanguage
-import com.application.requiemproject.model.ScanSource
-import com.application.requiemproject.model.TranslationSettings
+import com.application.requiemproject.domain.model.AppLanguage
+import com.application.requiemproject.domain.model.ScanSource
+import com.application.requiemproject.domain.model.TranslationSettings
+import com.application.requiemproject.domain.repository.SettingsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-class TranslationSettingsRepository(context: Context) {
-    private val preferences: SharedPreferences = context.getSharedPreferences(
-        PREFS_NAME,
-        Context.MODE_PRIVATE
+class TranslationSettingsRepository(context: Context) : SettingsRepository {
+    private val preferences = context.getSharedPreferences("translation_settings", Context.MODE_PRIVATE)
+    private val state = MutableStateFlow(readSettings())
+    override val settings = state.asStateFlow()
+
+    private fun readSettings() = TranslationSettings(
+        AppLanguage.entries.firstOrNull { it.name == preferences.getString("source_language", null) } ?: AppLanguage.defaultSource,
+        AppLanguage.entries.firstOrNull { it.name == preferences.getString("target_language", null) } ?: AppLanguage.defaultTarget,
+        ScanSource.entries.firstOrNull { it.name == preferences.getString("scan_source", null) } ?: ScanSource.OCR
     )
-
-    fun getSettings(): TranslationSettings {
-        val source = preferences.getString(KEY_SOURCE_LANGUAGE, AppLanguage.defaultSource.name)
-        val target = preferences.getString(KEY_TARGET_LANGUAGE, AppLanguage.defaultTarget.name)
-        val scanSource = preferences.getString(KEY_SCAN_SOURCE, ScanSource.OCR.name)
-
-        return TranslationSettings(
-            sourceLanguage = AppLanguage.entries.firstOrNull { it.name == source }
-                ?: AppLanguage.defaultSource,
-            targetLanguage = AppLanguage.entries.firstOrNull { it.name == target }
-                ?: AppLanguage.defaultTarget,
-            scanSource = ScanSource.entries.firstOrNull { it.name == scanSource }
-                ?: ScanSource.OCR
-        )
-    }
-
-    fun updateSourceLanguage(language: AppLanguage) {
-        preferences.edit { putString(KEY_SOURCE_LANGUAGE, language.name) }
-    }
-
-    fun updateTargetLanguage(language: AppLanguage) {
-        preferences.edit { putString(KEY_TARGET_LANGUAGE, language.name) }
-    }
-
-    fun updateScanSource(scanSource: ScanSource) {
-        preferences.edit { putString(KEY_SCAN_SOURCE, scanSource.name) }
-    }
-
-    companion object {
-        private const val PREFS_NAME = "translation_settings"
-        private const val KEY_SOURCE_LANGUAGE = "source_language"
-        private const val KEY_TARGET_LANGUAGE = "target_language"
-        private const val KEY_SCAN_SOURCE = "scan_source"
+    fun getSettings() = settings.value
+    override fun save(settings: TranslationSettings) {
+        preferences.edit {
+            putString("source_language", settings.sourceLanguage.name)
+            putString("target_language", settings.targetLanguage.name)
+            putString("scan_source", settings.scanSource.name)
+        }
+        state.value = settings
     }
 }

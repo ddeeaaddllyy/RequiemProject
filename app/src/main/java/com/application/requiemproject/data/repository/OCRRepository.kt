@@ -1,14 +1,14 @@
 package com.application.requiemproject.data.repository
 
 import android.graphics.Bitmap
-import com.application.requiemproject.model.TextBlock
+import com.application.requiemproject.domain.model.TextBlock
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.google.android.gms.tasks.Tasks
-import android.graphics.Rect
+import com.application.requiemproject.domain.model.TextBounds
 import android.util.Log
-import com.application.requiemproject.utils.TagSet.OCR_REPOSITORY_TAG
+import com.application.requiemproject.data.platform.TagSet.OCR_REPOSITORY_TAG
 
 open class OCRRepository {
     private val recognizer by lazy {
@@ -25,7 +25,7 @@ open class OCRRepository {
                 for (line in block.lines) {
                     val box = line.boundingBox ?: continue
 
-                    val correctedBox = Rect(
+                    val correctedBox = TextBounds(
                         (box.left / scale).toInt(),
                         ((box.top / scale) + yOffset).toInt(),
                         (box.right / scale).toInt(),
