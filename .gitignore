@@ -18,6 +18,7 @@
 *.pro
 /.idea/discord.xml
 /.idea
+.task
 /.gradle/buildOutputCleanup/buildOutputCleanup.lock
 /.gradle/buildOutputCleanup/cache.properties
 /.gradle/8.13/checksums/checksums.lock
