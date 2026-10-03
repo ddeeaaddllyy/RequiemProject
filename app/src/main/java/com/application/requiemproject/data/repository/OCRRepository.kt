@@ -15,30 +15,28 @@ open class OCRRepository {
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     }
 
-    fun recognizeText(bitmap: Bitmap, scale: Float, yOffset: Int): List<TextBlock> {
+    open fun recognizeText(bitmap: Bitmap, scale: Float, yOffset: Int): List<TextBlock> {
         return try {
             val inputImage = InputImage.fromBitmap(bitmap, 0)
             val result = Tasks.await(recognizer.process(inputImage))
             val characterList = mutableListOf<TextBlock>()
 
             for (block in result.textBlocks) {
-                for (line in block.lines) {
-                    val box = line.boundingBox ?: continue
+                val box = block.boundingBox ?: continue
 
-                    val correctedBox = TextBounds(
-                        (box.left / scale).toInt(),
-                        ((box.top / scale) + yOffset).toInt(),
-                        (box.right / scale).toInt(),
-                        ((box.bottom / scale) + yOffset).toInt()
-                    )
+                val correctedBox = TextBounds(
+                    (box.left / scale).toInt(),
+                    ((box.top / scale) + yOffset).toInt(),
+                    (box.right / scale).toInt(),
+                    ((box.bottom / scale) + yOffset).toInt()
+                )
 
-                    characterList.add(
-                        TextBlock(
-                            text = line.text,
-                            boundingBox = correctedBox
-                        )
+                characterList.add(
+                    TextBlock(
+                        text = block.text,
+                        boundingBox = correctedBox
                     )
-                }
+                )
             }
             characterList
         } catch (e: Exception) {

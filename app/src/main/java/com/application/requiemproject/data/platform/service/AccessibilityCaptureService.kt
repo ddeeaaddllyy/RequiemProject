@@ -24,6 +24,7 @@ class AccessibilityCaptureService : AccessibilityService() {
         windows
             .asSequence()
             .mapNotNull(AccessibilityWindowInfo::getRoot)
+            .filter { it.packageName?.toString() != packageName }
             .forEach { root ->
                 collectWindowBlocks(root, uniqueKeys, blocks)
             }
@@ -33,6 +34,7 @@ class AccessibilityCaptureService : AccessibilityService() {
         }
 
         val fallbackRoot = rootInActiveWindow ?: return emptyList()
+        if (fallbackRoot.packageName?.toString() == packageName) return emptyList()
         collectWindowBlocks(fallbackRoot, uniqueKeys, blocks)
         return blocks
     }

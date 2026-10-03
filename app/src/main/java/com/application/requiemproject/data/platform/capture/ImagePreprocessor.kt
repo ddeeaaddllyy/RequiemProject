@@ -36,6 +36,6 @@ object ImagePreprocessor {
         val width = (grayscaleBitmap.width * scaleFactor).toInt()
         val height = (grayscaleBitmap.height * scaleFactor).toInt()
 
-        return grayscaleBitmap.scale(width, height)
+        return grayscaleBitmap.scale(width, height).also { if (it !== grayscaleBitmap) grayscaleBitmap.recycle() }
     }
 }

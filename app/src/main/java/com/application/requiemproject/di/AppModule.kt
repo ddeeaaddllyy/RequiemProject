@@ -33,6 +33,7 @@ val appModule = module {
     factory { TranslationSettingsUseCase(get()) }
     factory { SearchHelpUseCase(get()) }
     factory { TranslateBlocksUseCase(get()) }
+    factory { SelectTextForTranslationUseCase(get()) }
     viewModel { AccountViewModel(get()) }
     viewModel { HomeViewModel(get(), get()) }
     viewModel { HelpViewModel(get(), get()) }

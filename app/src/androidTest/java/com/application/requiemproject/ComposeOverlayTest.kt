@@ -5,6 +5,8 @@ import android.provider.Settings
 import androidx.test.platform.app.InstrumentationRegistry
 import com.application.requiemproject.domain.model.TextBlock
 import com.application.requiemproject.domain.model.TextBounds
+import com.application.requiemproject.domain.model.SelectableTextBlock
+import com.application.requiemproject.domain.model.SelectionStatus
 import com.application.requiemproject.presentation.overlay.OverlayManager
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -26,8 +28,10 @@ class ComposeOverlayTest {
                 repeat(2) {
                     instrumentation.runOnMainSync {
                         overlay.showOverlay()
-                        overlay.updateTextOnScreen(listOf(TextBlock("Перевод", TextBounds(30, 150, 350, 220))))
-                        overlay.updateAccessibilityOverlay(listOf(TextBlock("Original", TextBounds(30, 150, 350, 220))))
+                        overlay.updateBlocks(listOf(SelectableTextBlock(TextBlock("Original", TextBounds(30, 150, 350, 220)))))
+                        overlay.setVisible(false)
+                        overlay.setVisible(true)
+                        overlay.updateBlocks(listOf(SelectableTextBlock(TextBlock("Original", TextBounds(30, 150, 350, 220)), SelectionStatus.TRANSLATED, "Перевод")))
                     }
                     instrumentation.waitForIdleSync()
                     instrumentation.runOnMainSync { overlay.removeOverlay() }

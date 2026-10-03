@@ -8,6 +8,7 @@ import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.media.projection.MediaProjectionManager
+import android.media.projection.MediaProjectionConfig
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
                     putExtra("RESULT_CODE", result.resultCode)
                     putExtra("DATA", data)
                 })
-                home.captureMessage("Запрос захвата отправлен. Откройте нужное приложение; управление доступно в уведомлении Requiem.")
+                home.captureMessage("Откройте нужное приложение, нажмите «Обновить» и выберите рамку текста. Перевод останется до следующего обновления.")
             } catch (_: Exception) {
                 home.captureMessage("Не удалось запустить захват. Попробуйте снова.")
             }
@@ -105,6 +106,10 @@ class MainActivity : ComponentActivity() {
             overlay.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
             return
         }
-        projection.launch(getSystemService(MediaProjectionManager::class.java).createScreenCaptureIntent())
+        val manager = getSystemService(MediaProjectionManager::class.java)
+        val captureIntent = if (Build.VERSION.SDK_INT >= 34) {
+            manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
+        } else manager.createScreenCaptureIntent()
+        projection.launch(captureIntent)
     }
 }

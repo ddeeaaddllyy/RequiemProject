@@ -4,10 +4,10 @@ package com.application.requiemproject.domain.usecase
 import com.application.requiemproject.domain.model.TextBlock
 
 object MergeText {
-    private val textRegex = Regex(".*[\\p{L}\\p{N}].*")
+    private val textRegex = Regex("[\\p{L}\\p{N}]")
 
     fun filterValidBlocks(blocks: List<TextBlock>): List<TextBlock> {
-        return blocks.filter { it.text.isNotBlank() && it.text.matches(textRegex) }
+        return blocks.filter { it.text.isNotBlank() && textRegex.containsMatchIn(it.text) }
     }
 
     fun mergeAndFilter(

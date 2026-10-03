@@ -13,14 +13,12 @@ import android.util.Log
 import android.widget.Toast
 import org.koin.android.ext.android.get
 import com.application.requiemproject.data.repository.OCRRepository
-import com.application.requiemproject.domain.usecase.TranslateBlocksUseCase
+import com.application.requiemproject.domain.usecase.SelectTextForTranslationUseCase
 import com.application.requiemproject.data.repository.TranslationSettingsRepository
 import com.application.requiemproject.domain.repository.TranslationOverlay
 import com.application.requiemproject.data.platform.capture.ScreenCaptureManager
 import com.application.requiemproject.domain.model.ScanSource
-import com.application.requiemproject.domain.model.TextBlock
 import com.application.requiemproject.domain.model.TranslationSettings
-import com.application.requiemproject.domain.model.TranslatorModel
 import com.application.requiemproject.data.platform.notification.NotificationActions
 import com.application.requiemproject.data.platform.notification.NotificationChannelManager
 import com.application.requiemproject.data.platform.notification.NotificationIds
@@ -43,8 +41,7 @@ open class ScreenCaptureService: Service() {
     private val ocrRepository: OCRRepository by lazy { get() }
     private lateinit var projectionManager: MediaProjectionManager
     private lateinit var overlayManager: TranslationOverlay
-    private lateinit var translator: TranslatorModel
-    private lateinit var translationRepository: TranslateBlocksUseCase
+    private lateinit var selection: SelectTextForTranslationUseCase
     private lateinit var settingsRepository: TranslationSettingsRepository
 
     // NOTIFICATIONS
@@ -54,13 +51,12 @@ open class ScreenCaptureService: Service() {
     // THREADING
     private var backgroundHandler: Handler? = null
     private var backgroundThread: HandlerThread? = null
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     // STATE
-    private var isRunning: Boolean = true
-    private var ocrJob: Job? = null
-    private var lastFrameBlocks: List<TextBlock> = emptyList()
-    private var lastAccessibilityBlocks: List<TextBlock> = emptyList()
+    @Volatile private var isRunning: Boolean = true
+    @Volatile private var ocrJob: Job? = null
+    private val translationJobs = mutableSetOf<Job>()
     private lateinit var activeSettings: TranslationSettings
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -78,62 +74,49 @@ open class ScreenCaptureService: Service() {
         channelManager.createNotificationChannel()
 
         // main capture
-        translator = get()
+        selection = get()
         settingsRepository = get()
         activeSettings = settingsRepository.getSettings()
-        translationRepository = get()
+        serviceScope.launch { selection.blocks.collect { overlayManager.updateBlocks(it) } }
+        overlayManager.setOnBlockSelected { block ->
+            if (isRunning) {
+                val job = serviceScope.launch { selection.select(block, activeSettings) }
+                translationJobs.add(job)
+                job.invokeOnCompletion { translationJobs.remove(job) }
+            }
+        }
         captureManager = ScreenCaptureManager(this, projectionManager, backgroundHandler!!)
+        captureManager.onCaptureVisibility = { visible -> overlayManager.setVisible(visible && isRunning) }
+        captureManager.onCaptureStopped = { stopSelf() }
+        overlayManager.setOnRefresh {
+            if (isRunning && ocrJob?.isActive != true) {
+                activeSettings = settingsRepository.getSettings()
+                cancelTranslations()
+                selection.clear()
+                captureManager.requestScan()
+            }
+        }
         captureManager.onProcessedCaptured = onProcessedCaptured@{ bitmap, scale, offset ->
 
-            if (ocrJob?.isActive == true) {
+            if (!isRunning || ocrJob?.isActive == true) {
                 bitmap.recycle()
                 return@onProcessedCaptured
             }
 
             ocrJob = serviceScope.launch {
                 try {
-                    val accessibilityBlocks = if (activeSettings.scanSource == ScanSource.ACCESSIBILITY) {
-                        MergeText.filterValidBlocks(AccessibilityTextProvider.latestBlocks)
-                    } else {
-                        emptyList()
-                    }
-                    val scanBlocks = when (activeSettings.scanSource) {
-                        ScanSource.ACCESSIBILITY -> accessibilityBlocks
-                        ScanSource.OCR -> MergeText.filterValidBlocks(
-                            ocrRepository.recognizeText(bitmap, scale, offset)
-                        )
-                    }
-
-                    if (scanBlocks.isEmpty()) {
-                        withContext(Dispatchers.Main) {
-                            overlayManager.updateTextOnScreen(emptyList())
-                            overlayManager.updateAccessibilityOverlay(accessibilityBlocks)
+                    val settings = activeSettings
+                    val scanBlocks = withContext(Dispatchers.Default) {
+                        when (settings.scanSource) {
+                            ScanSource.ACCESSIBILITY -> MergeText.filterValidBlocks(AccessibilityTextProvider.latestBlocks)
+                            ScanSource.OCR -> ocrRepository.recognizeText(bitmap, scale, offset)
                         }
-                        lastFrameBlocks = emptyList()
-                        lastAccessibilityBlocks = accessibilityBlocks
-                        return@launch
                     }
-
-                    if (scanBlocks == lastFrameBlocks && accessibilityBlocks == lastAccessibilityBlocks) {
-                        return@launch
-                    }
-                    lastFrameBlocks = scanBlocks
-                    lastAccessibilityBlocks = accessibilityBlocks
-
-                    val translatedBlocks = translationRepository.translateBlocks(
-                        scanBlocks,
-                        activeSettings
-                    )
-
-                    withContext(Dispatchers.Main) {
-                        overlayManager.updateTextOnScreen(translatedBlocks)
-                        overlayManager.updateAccessibilityOverlay(accessibilityBlocks)
-                    }
-
+                    if (isRunning && settings == activeSettings) selection.recognize(scanBlocks)
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
                 } catch (e: Exception) {
-                    if (e !is CancellationException) {
-                        Log.e(SCREEN_CAPTURE_SERVICE_TAG, "Pipeline Error: ${e.message}") // [cite: 15]
-                    }
+                    Log.e(SCREEN_CAPTURE_SERVICE_TAG, "Recognition failed", e)
                 } finally {
                     bitmap.recycle()
                 }
@@ -142,27 +125,36 @@ open class ScreenCaptureService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        activeSettings = settingsRepository.getSettings()
+        val settings = settingsRepository.getSettings()
+        if (settings != activeSettings) {
+            cancelTranslations()
+            selection.clear()
+            activeSettings = settings
+        }
 
-        val notification = notificationsFactory.createNotification(isRunning)
         if (intent?.action == NotificationActions.TOGGLE_CAPTURE) {
             isRunning = !isRunning
-            notificationsFactory.updateNotification(running = isRunning)
+            captureManager.isPaused = !isRunning
             if (!isRunning) {
-                captureManager.stopCapture()
+                ocrJob?.cancel()
+                cancelTranslations()
+                selection.clear()
                 overlayManager.removeOverlay()
+            } else {
+                overlayManager.showOverlay()
+                captureManager.requestScan()
             }
         }
 
         startForeground(
             NotificationIds.SCREEN_CAPTURE,
-            notification,
+            notificationsFactory.createNotification(isRunning),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
         )
 
         val resultCode = intent?.getIntExtra("RESULT_CODE", Activity.RESULT_CANCELED)
             ?: Activity.RESULT_CANCELED
-        val data = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+        val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent?.getParcelableExtra("DATA", Intent::class.java)
         } else {
             @Suppress("deprecation")
@@ -171,9 +163,8 @@ open class ScreenCaptureService: Service() {
 
 
         if (resultCode == -1 && data != null) {
-            captureManager.startCapture(resultCode, data)
             overlayManager.showOverlay()
-            overlayManager.updateAccessibilityOverlay(emptyList())
+            captureManager.startCapture(resultCode, data)
         }
 
         return START_NOT_STICKY
@@ -183,6 +174,11 @@ open class ScreenCaptureService: Service() {
         backgroundThread = HandlerThread("CameraBackground")
         backgroundThread?.start()
         backgroundHandler = Handler(backgroundThread!!.looper)
+    }
+
+    private fun cancelTranslations() {
+        translationJobs.toList().forEach { it.cancel() }
+        translationJobs.clear()
     }
 
     override fun onLowMemory() {
@@ -195,6 +191,8 @@ open class ScreenCaptureService: Service() {
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
+        overlayManager.setOnBlockSelected(null)
+        overlayManager.setOnRefresh(null)
         ocrJob?.cancel()
         captureManager.stopCapture()
         serviceScope.cancel()

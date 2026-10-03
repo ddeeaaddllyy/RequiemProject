@@ -14,14 +14,14 @@ open class NotificationsFactory(
 )
 {
     open fun createNotification(isRunning: Boolean): Notification {
-        val title = "Screen capture service"
+        val title = "Requiem · Выборочный перевод"
         val text = if (isRunning) {
-            "Recording is running"
+            "Обновите снимок и выберите рамку текста"
         } else {
-            "Recording is stopped"
+            "Распознавание приостановлено"
         }
 
-        val actionTitle = if (isRunning) "Stop" else "Start"
+        val actionTitle = if (isRunning) "Приостановить" else "Возобновить"
         val action = Notification.Action.Builder(
             R.drawable.ic_notification_24,
             actionTitle,
