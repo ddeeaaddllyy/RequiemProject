@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title description">
+  <title id="title">Requiem — Break the language barrier</title>
+  <desc id="description">An original red, black, paper white and gold calling card for the Requiem Android translator.</desc>
+  <defs>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.5" fill="#F3F0E8" opacity="0.1"/>
+    </pattern>
+  </defs>
+  <path fill="#0D0D10" d="M0 0h1280v420H0z"/>
+  <path fill="url(#dots)" d="M0 0h1280v420H0z"/>
+  <path fill="#F51B42" d="M945 0h335v420H800z"/>
+  <path fill="#17171B" d="m1190 0-153 420h-31l153-420z"/>
+  <path fill="#D8B45B" d="m0 388 744-28-8 14L0 402z"/>
+  <path fill="#F51B42" d="m53 43 454-12-9 43L45 87z"/>
+  <text x="68" y="65" fill="#F3F0E8" font-family="monospace" font-size="18" letter-spacing="3">01 / THE TRANSLATION ROOM</text>
+  <path fill="#F3F0E8" d="m57 111 750-18-26 151-750 18z"/>
+  <text x="63" y="222" fill="#0D0D10" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="900" font-style="italic" letter-spacing="-5">REQUIEM</text>
+  <text x="53" y="300" fill="#F3F0E8" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" letter-spacing="2">BREAK THE LANGUAGE BARRIER.</text>
+  <text x="53" y="340" fill="#D8B45B" font-family="monospace" font-size="17" letter-spacing="2">SELECT. TRANSLATE. KEEP READING.</text>
+  <g transform="translate(901 87) rotate(-9 120 120)">
+    <path d="m129 3 21 80 99-12-66 63 34 94-87-47-77 62 11-105L0 102l96-13z" fill="none" stroke="#F3F0E8" stroke-width="7"/>
+    <path d="m131 55-61 88 48-5-12 59 78-100-48 11z" fill="#F3F0E8"/>
+  </g>
+  <text x="946" y="376" fill="#F3F0E8" font-family="monospace" font-size="13" letter-spacing="2">ANDROID / SCREEN TRANSLATOR</text>
+</svg>

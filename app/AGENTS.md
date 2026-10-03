@@ -26,6 +26,11 @@ bold italic headings, halftone textures, and lively but readable transitions.
 Apply this direction to navigation, bottom sheets, and translation overlays;
 keep touch targets, contrast, scrolling, and screen-reader semantics usable.
 Use original Compose geometry rather than copied game assets.
+Translation results are the reading surface: use neutral colors, plain rectangular
+bounds aligned with the selected text, regular typography, and no decorative
+red/gold outlines or angular cutouts. Keep Persona styling in the main app.
+The floating refresh button remains a Persona calling card, with red accents
+and angular geometry. This exception does not apply to the translation text.
 
 Follow the existing Kotlin and Java style: four-space indentation, `PascalCase` classes, `camelCase` functions and properties, and lowercase package names. Keep Android resource names in `snake_case` (for example, `fragment_home.xml` and `ic_search_24.xml`). Place new code beside related features and keep UI, data access, and background services in their existing packages. No separate formatter is configured; use Android Studio formatting and review lint output.
 
@@ -39,4 +44,7 @@ Recent commits use short, descriptive subjects such as “Update the UI” and �
 
 ## Security & Configuration
 
-Keep API keys and machine-specific SDK settings in the repository root's ignored `local.properties`, as described in `README.md`. Do not commit credentials or generated build output.
+Keep machine-specific SDK settings in the repository root's ignored `local.properties`.
+User-entered translation API keys belong in the encrypted Android Keystore backed
+provider repository under `noBackupFilesDir`; never store them in SavedStateHandle,
+logs, source, or BuildConfig. Do not commit credentials or generated build output.
