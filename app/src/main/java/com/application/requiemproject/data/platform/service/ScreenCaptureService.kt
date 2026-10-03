@@ -11,7 +11,7 @@ import android.os.HandlerThread
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import com.application.requiemproject.App
+import org.koin.android.ext.android.get
 import com.application.requiemproject.data.repository.OCRRepository
 import com.application.requiemproject.domain.usecase.TranslateBlocksUseCase
 import com.application.requiemproject.data.repository.TranslationSettingsRepository
@@ -40,7 +40,7 @@ open class ScreenCaptureService: Service() {
 
     // DEPENDENCIES
     private lateinit var captureManager: ScreenCaptureManager
-    private val ocrRepository = OCRRepository()
+    private val ocrRepository: OCRRepository by lazy { get() }
     private lateinit var projectionManager: MediaProjectionManager
     private lateinit var overlayManager: TranslationOverlay
     private lateinit var translator: TranslatorModel
@@ -70,7 +70,7 @@ open class ScreenCaptureService: Service() {
         startBackgroundThread()
 
         projectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        overlayManager = (application as App).container.createOverlay()
+        overlayManager = get()
 
         // notifications
         notificationsFactory = NotificationsFactory(context = this)
@@ -78,10 +78,10 @@ open class ScreenCaptureService: Service() {
         channelManager.createNotificationChannel()
 
         // main capture
-        translator = (application as App).container.translator
-        settingsRepository = (application as App).container.settings
+        translator = get()
+        settingsRepository = get()
         activeSettings = settingsRepository.getSettings()
-        translationRepository = TranslateBlocksUseCase(translator)
+        translationRepository = get()
         captureManager = ScreenCaptureManager(this, projectionManager, backgroundHandler!!)
         captureManager.onProcessedCaptured = onProcessedCaptured@{ bitmap, scale, offset ->
 

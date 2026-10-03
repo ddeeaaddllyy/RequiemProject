@@ -35,6 +35,29 @@ val SlashShape = GenericShape { size, _ ->
     close()
 }
 
+val CallingCardShape = GenericShape { size, _ ->
+    moveTo(0f, size.height * .06f)
+    lineTo(size.width * .72f, 0f)
+    lineTo(size.width * .76f, size.height * .04f)
+    lineTo(size.width, size.height * .02f)
+    lineTo(size.width, size.height)
+    lineTo(0f, size.height)
+    close()
+}
+
+@Composable
+fun CallingCardHeader(kicker: String, title: String) {
+    Box(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+        RequiemInsignia(Modifier.align(Alignment.CenterEnd).size(88.dp), Gold.copy(alpha = .3f))
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Eyebrow(kicker, Gold)
+            Text(title, color = Ink, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic,
+                fontSize = 26.sp, modifier = Modifier.graphicsLayer { rotationZ = -3f }
+                    .clip(SlashShape).background(Paper).padding(horizontal = 18.dp, vertical = 8.dp))
+        }
+    }
+}
+
 @Composable
 fun RequiemBackground(content: @Composable BoxScope.() -> Unit) {
     Box(Modifier.fillMaxSize().background(Ink)) {

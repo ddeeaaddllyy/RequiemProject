@@ -17,12 +17,11 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.application.requiemproject.App
 import com.application.requiemproject.R
 import com.application.requiemproject.data.platform.service.ScreenCaptureService
 import com.application.requiemproject.domain.model.ScanSource
@@ -34,11 +33,10 @@ import com.application.requiemproject.presentation.navigation.NavigationViewMode
 
 /** Android permission and activity-result boundary; screen logic lives in ViewModels. */
 class MainActivity : ComponentActivity() {
-    private val factory get() = (application as App).container.viewModelFactory
-    private val account: AccountViewModel by viewModels { factory }
-    private val home: HomeViewModel by viewModels { factory }
-    private val help: HelpViewModel by viewModels { factory }
-    private val navigation: NavigationViewModel by viewModels { factory }
+    private val account: AccountViewModel by viewModel()
+    private val home: HomeViewModel by viewModel()
+    private val help: HelpViewModel by viewModel()
+    private val navigation: NavigationViewModel by viewModel()
 
     private val notifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) requestCapture() else home.captureMessage("Уведомления отключены. Разрешите их в настройках приложения, чтобы управлять захватом.")

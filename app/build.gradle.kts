@@ -51,6 +51,7 @@ val room_version = "2.6.1"
 val retrofit_version = "2.9.0"
 
 dependencies {
+    implementation(libs.koin.android)
     constraints {
         implementation("androidx.fragment:fragment:1.8.5") {
             because("ML Kit brings Fragment 1.0.0 transitively; Activity Result requires a compatible version")

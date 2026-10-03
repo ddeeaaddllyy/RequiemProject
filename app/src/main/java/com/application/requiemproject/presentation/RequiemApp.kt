@@ -3,6 +3,9 @@ package com.application.requiemproject.presentation
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
@@ -14,6 +17,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -81,16 +86,28 @@ fun RequiemApp(account: AccountViewModel, home: HomeViewModel, help: HelpViewMod
 
 @Composable
 private fun BottomNavigation(current: Destination, onSelect: (Destination) -> Unit) {
-    Row(Modifier.widthIn(max = 700.dp).fillMaxWidth().background(Ink).selectableGroup().padding(horizontal = 12.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Destination.entries.forEach { destination ->
+    Column(Modifier.widthIn(max = 700.dp).fillMaxWidth().background(Ink).padding(top = 6.dp)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 22.dp), verticalAlignment = Alignment.CenterVertically) {
+            Eyebrow("TAKE YOUR TIME", Gold)
+            HorizontalDivider(Modifier.weight(1f).padding(start = 12.dp), color = Red)
+        }
+        Row(Modifier.fillMaxWidth().selectableGroup().padding(horizontal = 12.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Destination.entries.forEachIndexed { index, destination ->
             val selected = current == destination
-            val color by animateColorAsState(if (selected) Red else Ink, label = "navigation selection")
-            Column(Modifier.weight(1f).clip(SlashShape).background(color)
-                .selectable(selected, role = Role.Tab, onClick = { onSelect(destination) }).padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            val color by animateColorAsState(if (selected) Paper else Panel, label = "navigation selection")
+            val tilt by animateFloatAsState(if (selected) -4f else 0f, spring(), label = "navigation tilt")
+            Box(Modifier.weight(1f)) {
+                Box(Modifier.matchParentSize().graphicsLayer { translationX = 4.dp.toPx(); translationY = 4.dp.toPx() }.clip(SlashShape).background(if (selected) Red else Ink))
+                Column(Modifier.fillMaxWidth().graphicsLayer { rotationZ = tilt }.clip(SlashShape).background(color)
+                .border(1.dp, if (selected) Paper else Muted.copy(alpha = .25f), SlashShape)
+                .selectable(selected, role = Role.Tab, onClick = { onSelect(destination) }).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Eyebrow("0${index + 1}", if (selected) Red else Muted)
                 Icon(when (destination) { Destination.HOME -> Icons.Default.Translate; Destination.HELP -> Icons.Default.AutoStories; Destination.PROFILE -> Icons.Default.PersonOutline },
-                    null, tint = if (selected) Paper else Muted, modifier = Modifier.size(23.dp))
-                Text(destination.label, color = if (selected) Paper else Muted, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp))
+                    null, tint = if (selected) Ink else Muted, modifier = Modifier.size(23.dp))
+                Text(destination.label, color = if (selected) Ink else Paper, fontSize = 12.sp, fontStyle = FontStyle.Italic, fontWeight = FontWeight.Black, modifier = Modifier.padding(top = 4.dp))
+                }
             }
+        }
         }
     }
 }

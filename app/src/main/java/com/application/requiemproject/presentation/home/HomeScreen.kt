@@ -3,6 +3,7 @@ package com.application.requiemproject.presentation.home
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -98,20 +99,31 @@ fun HomeScreen(
         }
     }
     if (picker != null) {
-        ModalBottomSheet(onDismissRequest = onCloseLanguage, containerColor = Ink, contentColor = Paper) {
+        ModalBottomSheet(onDismissRequest = onCloseLanguage, containerColor = Ink, contentColor = Paper,
+            shape = CallingCardShape, scrimColor = Red.copy(alpha = .32f),
+            dragHandle = {
+                Box(Modifier.padding(top = 22.dp, bottom = 6.dp).size(48.dp, 5.dp).clip(SlashShape).background(Red))
+            }) {
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(bottom = 28.dp)) {
-                Eyebrow("CHOOSE YOUR LANGUAGE", Gold)
-                Text(if (picker == "source") "С какого языка?" else "На какой язык?", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(vertical = 16.dp))
+                CallingCardHeader("LANGUAGE / CALLING CARD", if (picker == "source") "С какого языка?" else "На какой язык?")
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Выбери язык операции", Modifier.weight(1f), color = Muted, style = MaterialTheme.typography.bodyMedium)
+                    IconButton(onClick = onCloseLanguage) { Icon(Icons.Default.Close, "Закрыть выбор языка", tint = Paper) }
+                }
                 Column(Modifier.selectableGroup()) {
-                    AppLanguage.entries.forEach { language ->
+                    AppLanguage.entries.forEachIndexed { index, language ->
                         val selected = language == if (picker == "source") settings.sourceLanguage else settings.targetLanguage
+                        val selectionColor by animateColorAsState(if (selected) Paper else Panel, label = "language selection")
                         Row(Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(SlashShape)
-                            .background(if (selected) Red else Panel)
+                            .background(selectionColor).border(1.dp, if (selected) Red else Paper.copy(alpha = .12f), SlashShape)
                             .selectable(selected, role = Role.RadioButton, onClick = { onSelectLanguage(language) })
-                            .padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(language.translationCode.uppercase(), Modifier.width(45.dp), fontWeight = FontWeight.Black)
-                            Text(language.localizedName(), Modifier.weight(1f))
-                            if (selected) Icon(Icons.Default.Check, null)
+                            .padding(horizontal = 18.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Eyebrow("0${index + 1}", if (selected) Red else Muted)
+                            Text(language.translationCode.uppercase(), Modifier.padding(horizontal = 14.dp).width(42.dp),
+                                color = if (selected) Red else Paper, fontWeight = FontWeight.Black, fontSize = 25.sp, fontStyle = FontStyle.Italic)
+                            Text(language.localizedName(), Modifier.weight(1f), color = if (selected) Ink else Paper, fontWeight = FontWeight.Bold)
+                            if (selected) Icon(Icons.Default.CheckCircle, null, tint = Red)
+                            else Icon(Icons.Default.ArrowForward, null, tint = Muted, modifier = Modifier.size(18.dp))
                         }
                     }
                 }

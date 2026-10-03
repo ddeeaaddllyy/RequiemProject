@@ -98,10 +98,11 @@ fun ProfileScreen(state: AccountUiState, onEdit: (Boolean) -> Unit, onEmail: (St
         Text("Requiem · Экранный переводчик", color = Muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
     }
     if (state.editing) {
-        ModalBottomSheet(onDismissRequest = { onEdit(false) }, containerColor = Ink) {
+        ModalBottomSheet(onDismissRequest = { onEdit(false) }, containerColor = Ink,
+            shape = CallingCardShape, scrimColor = Red.copy(alpha = .32f),
+            dragHandle = { Box(Modifier.padding(top = 22.dp).size(48.dp, 5.dp).background(Red)) }) {
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding().padding(24.dp)) {
-                Eyebrow("EDIT YOUR DOSSIER", Gold)
-                Text("НАСТРОЙКИ", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(vertical = 16.dp))
+                CallingCardHeader("EDIT YOUR DOSSIER", "НАСТРОЙКИ")
                 Text("Email используется в запросах к сервису перевода MyMemory.", color = Muted)
                 OutlinedTextField(state.email, onEmail, Modifier.fillMaxWidth().padding(top = 18.dp), label = { Text("Email") }, singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), enabled = !state.loading)

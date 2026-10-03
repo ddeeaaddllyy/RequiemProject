@@ -18,6 +18,15 @@ Open the repository root in Android Studio for Gradle sync and interactive debug
 
 ## Coding Style & Naming Conventions
 
+### Interface direction
+
+The entire interface is inspired by Persona 5 Royal. Preserve the red, black,
+paper-white, and gold palette, angular cutouts, layered calling-card panels,
+bold italic headings, halftone textures, and lively but readable transitions.
+Apply this direction to navigation, bottom sheets, and translation overlays;
+keep touch targets, contrast, scrolling, and screen-reader semantics usable.
+Use original Compose geometry rather than copied game assets.
+
 Follow the existing Kotlin and Java style: four-space indentation, `PascalCase` classes, `camelCase` functions and properties, and lowercase package names. Keep Android resource names in `snake_case` (for example, `fragment_home.xml` and `ic_search_24.xml`). Place new code beside related features and keep UI, data access, and background services in their existing packages. No separate formatter is configured; use Android Studio formatting and review lint output.
 
 ## Testing Guidelines

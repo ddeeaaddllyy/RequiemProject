@@ -1,8 +1,16 @@
 package com.application.requiemproject
 
 import android.app.Application
-import com.application.requiemproject.di.AppContainer
+import com.application.requiemproject.di.appModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
 class App : Application() {
-    val container by lazy { AppContainer(this) }
+    override fun onCreate() {
+        super.onCreate()
+        startKoin {
+            androidContext(this@App)
+            modules(appModule)
+        }
+    }
 }
