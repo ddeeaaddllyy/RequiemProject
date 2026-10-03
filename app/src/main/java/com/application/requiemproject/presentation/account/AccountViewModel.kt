@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 data class AccountUiState(
     val account: Account? = null,
     val loading: Boolean = true,
+    val restoring: Boolean = true,
     val guest: Boolean = false,
     val login: String = "",
     val password: String = "",
@@ -29,9 +30,9 @@ class AccountViewModel(private val accounts: AccountUseCase) : ViewModel() {
         viewModelScope.launch {
             try {
                 val account = accounts.current()
-                mutableState.update { it.copy(account = account, email = account?.email.orEmpty(), loading = false) }
+                mutableState.update { it.copy(account = account, email = account?.email.orEmpty(), loading = false, restoring = false) }
             } catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) { mutableState.update { it.copy(loading = false, error = "Не удалось открыть аккаунт. Попробуйте ещё раз.") } }
+            catch (_: Exception) { mutableState.update { it.copy(loading = false, restoring = false, error = "Не удалось открыть аккаунт. Попробуйте ещё раз.") } }
         }
     }
     fun login(value: String) { mutableState.update { it.copy(login = value, error = null) } }
@@ -67,6 +68,6 @@ class AccountViewModel(private val accounts: AccountUseCase) : ViewModel() {
     }
     fun signOut() {
         accounts.signOut()
-        mutableState.value = AccountUiState(loading = false)
+        mutableState.value = AccountUiState(loading = false, restoring = false)
     }
 }

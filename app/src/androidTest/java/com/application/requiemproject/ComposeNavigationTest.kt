@@ -10,10 +10,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import android.os.ParcelFileDescriptor
 import com.application.requiemproject.presentation.MainActivity
 import org.junit.Rule
+import org.junit.rules.RuleChain
 import org.junit.Test
 
 class ComposeNavigationTest {
-    @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    val compose = createAndroidComposeRule<MainActivity>()
+    @get:Rule val rules: RuleChain = RuleChain.outerRule(SignedOutRule()).around(compose)
 
     @Test fun guestCanChooseLanguageSearchHelpAndOpenProfile() {
         compose.waitUntil(10_000) {

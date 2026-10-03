@@ -47,7 +47,11 @@ fun RequiemApp(account: AccountViewModel, home: HomeViewModel, help: HelpViewMod
                     Eyebrow("BREAK THE BARRIER", Gold)
                 }
                 HorizontalDivider(color = Paper.copy(alpha = .12f))
-                if (!authenticated) {
+                if (accountState.restoring) {
+                    Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Red)
+                    }
+                } else if (!authenticated) {
                     Box(Modifier.weight(1f).widthIn(max = 600.dp)) {
                         AuthScreen(accountState, account::login, account::password, account::authenticate, account::toggleRegistration, account::guest)
                     }

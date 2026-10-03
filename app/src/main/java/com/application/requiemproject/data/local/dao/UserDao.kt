@@ -10,7 +10,7 @@ import com.application.requiemproject.data.local.entities.User
 @Dao
 interface UserDao {
 
-    @Query(value = "SELECT * FROM user WHERE login = :inputLogin LIMIT 1")
+    @Query(value = "SELECT * FROM user WHERE login = :inputLogin COLLATE NOCASE LIMIT 1")
     suspend fun getUserByLogin(inputLogin: String): User?
 
     @Query(value = "SELECT * FROM user WHERE email = :inputEmail LIMIT 1")
