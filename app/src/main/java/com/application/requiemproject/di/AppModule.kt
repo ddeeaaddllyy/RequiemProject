@@ -1,10 +1,13 @@
 package com.application.requiemproject.di
 
 import com.application.requiemproject.data.api.RetrofitClient
+import com.application.requiemproject.data.api.AiTranslationApi
 import com.application.requiemproject.data.local.SessionManager
 import com.application.requiemproject.data.local.db.AppDatabase
 import com.application.requiemproject.data.repository.*
 import com.application.requiemproject.data.translator.MyMemoryTranslator
+import com.application.requiemproject.data.translator.AiTranslator
+import com.application.requiemproject.data.translator.ProviderTranslator
 import com.application.requiemproject.domain.model.TranslatorModel
 import com.application.requiemproject.domain.repository.*
 import com.application.requiemproject.domain.usecase.*
@@ -26,16 +29,21 @@ val appModule = module {
     single<SettingsRepository> { get<TranslationSettingsRepository>() }
     single<AccountRepository> { LocalAccountRepository(get(), get()) }
     single<HelpRepository> { LocalHelpRepository() }
-    single<TranslatorModel> { MyMemoryTranslator(get(), get(), get()) }
+    single<ProviderConfigurationRepository> { EncryptedProviderConfigurationRepository(androidContext()) }
+    single { AiTranslationApi.create() }
+    single { MyMemoryTranslator(get(), get(), get()) }
+    single { AiTranslator(get()) }
+    single<TranslatorModel> { ProviderTranslator(get<MyMemoryTranslator>(), get(), get(), get()) }
     factory<TranslationOverlay> { OverlayManager(androidContext()) }
     factory { OCRRepository() }
     factory { AccountUseCase(get()) }
     factory { TranslationSettingsUseCase(get()) }
+    factory { ProviderSettingsUseCase(get()) }
     factory { SearchHelpUseCase(get()) }
     factory { TranslateBlocksUseCase(get()) }
     factory { SelectTextForTranslationUseCase(get()) }
     viewModel { AccountViewModel(get()) }
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get()) }
     viewModel { HelpViewModel(get(), get()) }
     viewModel { NavigationViewModel(get()) }
 }

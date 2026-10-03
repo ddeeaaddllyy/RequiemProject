@@ -24,4 +24,5 @@ interface TranslatorModel {
      * This method may perform network requests.
      */
     suspend fun translate(text: String, languages: String): TranslationResult
+    suspend fun translate(text: String, settings: TranslationSettings): TranslationResult = translate(text, settings.languagePair)
 }

@@ -2,6 +2,7 @@ package com.application.requiemproject.domain.usecase
 
 import com.application.requiemproject.domain.model.AppLanguage
 import com.application.requiemproject.domain.model.ScanSource
+import com.application.requiemproject.domain.model.TranslationProvider
 import com.application.requiemproject.domain.repository.SettingsRepository
 
 class TranslationSettingsUseCase(private val repository: SettingsRepository) {
@@ -15,4 +16,5 @@ class TranslationSettingsUseCase(private val repository: SettingsRepository) {
         repository.save(current.copy(sourceLanguage = current.targetLanguage, targetLanguage = current.sourceLanguage))
     }
     fun selectScanSource(source: ScanSource) = repository.save(settings.value.copy(scanSource = source))
+    fun selectProvider(provider: TranslationProvider) = repository.save(settings.value.copy(provider = provider))
 }

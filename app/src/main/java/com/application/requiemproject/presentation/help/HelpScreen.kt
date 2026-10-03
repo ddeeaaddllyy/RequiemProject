@@ -25,7 +25,7 @@ import com.application.requiemproject.presentation.theme.*
 @Composable
 fun HelpScreen(query: String, category: String, expanded: Int?, articles: List<HelpArticle>, onQuery: (String) -> Unit, onCategory: (String) -> Unit, onToggle: (Int) -> Unit) {
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(horizontal = 22.dp, vertical = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        item { ScreenHeading("02 / FIELD NOTES", "СЕКРЕТНОЕ\nДОСЬЕ.", "Всё, что нужно знать перед началом.") }
+        item { ScreenHeading("02 / FIELD NOTES", "ДОСЬЕ.", "Всё, что нужно знать перед началом.") }
         item {
             OutlinedTextField(query, onQuery, Modifier.fillMaxWidth(), singleLine = true,
                 label = { Text("Поиск по досье") }, leadingIcon = { Icon(Icons.Default.Search, null) },

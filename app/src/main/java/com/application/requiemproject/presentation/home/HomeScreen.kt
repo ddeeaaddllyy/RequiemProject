@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -22,6 +23,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.application.requiemproject.domain.model.*
@@ -49,7 +52,16 @@ fun HomeScreen(
     onScanSource: (ScanSource) -> Unit,
     onStart: () -> Unit,
     onAccessibilitySettings: () -> Unit,
-    onHelp: () -> Unit
+    onHelp: () -> Unit,
+    providerEditor: ProviderEditorState = ProviderEditorState(),
+    onOpenProvider: () -> Unit = {},
+    onCloseProvider: () -> Unit = {},
+    onSelectProvider: (TranslationProvider) -> Unit = {},
+    onProviderKey: (String) -> Unit = {},
+    onProviderModel: (String) -> Unit = {},
+    onProviderUrl: (String) -> Unit = {},
+    onSaveProvider: () -> Unit = {},
+    onRemoveProviderKey: () -> Unit = {}
 ) {
     Column(Modifier.fillMaxSize()) {
         LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(start = 22.dp, end = 22.dp, bottom = 12.dp)) {
@@ -75,16 +87,29 @@ fun HomeScreen(
             if (settings.scanSource == ScanSource.ACCESSIBILITY) {
                 item {
                     Column(Modifier.padding(top = 12.dp).background(Panel).padding(16.dp)) {
-                        Text("Включите Requiem в специальных возможностях Android. Распознанный текст отправляется MyMemory для перевода.", style = MaterialTheme.typography.bodyMedium, color = Muted)
+                        Text("Включите Requiem в специальных возможностях Android. Нажмите на рамку нужного текста, чтобы отправить его выбранному сервису для перевода.", style = MaterialTheme.typography.bodyMedium, color = Muted)
                         TextButton(onClick = onAccessibilitySettings) { Text("Открыть специальные возможности", color = Gold) }
                     }
+                }
+            }
+            item { SectionLabel("03", "Кто переводит", "TRANSLATOR") }
+            item {
+                Row(Modifier.fillMaxWidth().clip(SlashShape).background(Panel)
+                    .clickable(role = Role.Button, onClick = onOpenProvider).padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Translate, null, tint = Red)
+                    Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                        Text(settings.provider.label, fontWeight = FontWeight.Bold)
+                        Text(if (settings.provider.requiresKey) "Настроить API-ключ и модель" else "Без API-ключа",
+                            color = Muted, style = MaterialTheme.typography.bodySmall)
+                    }
+                    Icon(Icons.Default.ArrowDropDown, "Выбрать переводчика", tint = Paper)
                 }
             }
             item {
                 Row(Modifier.padding(top = 14.dp), verticalAlignment = Alignment.Top) {
                     Icon(Icons.Default.Shield, null, Modifier.size(16.dp), tint = Muted)
                     Spacer(Modifier.width(8.dp))
-                    Text("Захват начнётся после вашего разрешения. Текст обрабатывается сервисом MyMemory.", color = Muted, style = MaterialTheme.typography.bodyMedium)
+                    Text("Откройте нужное приложение и нажмите «Обновить», затем выберите рамку текста. Перевод сохраняется до следующего обновления. Только выбранный блок отправляется ${settings.provider.label}.", color = Muted, style = MaterialTheme.typography.bodyMedium)
                 }
             }
             item {
@@ -128,6 +153,51 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+    if (providerEditor.visible) {
+        ProviderSheet(providerEditor, onCloseProvider, onSelectProvider, onProviderKey, onProviderModel, onProviderUrl, onSaveProvider, onRemoveProviderKey)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProviderSheet(state: ProviderEditorState, onClose: () -> Unit, onSelect: (TranslationProvider) -> Unit,
+    onKey: (String) -> Unit, onModel: (String) -> Unit, onUrl: (String) -> Unit, onSave: () -> Unit, onRemove: () -> Unit) {
+    ModalBottomSheet(onDismissRequest = onClose, containerColor = Ink, contentColor = Paper,
+        shape = CallingCardShape, scrimColor = Red.copy(alpha = .32f)) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding().padding(horizontal = 24.dp).padding(bottom = 28.dp)) {
+            CallingCardHeader("TRANSLATOR / CALLING CARD", "Кто переводит?")
+            Column(Modifier.selectableGroup()) {
+                TranslationProvider.entries.forEach { provider ->
+                    val selected = provider == state.provider
+                    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(SlashShape).background(if (selected) Paper else Panel)
+                        .selectable(selected, role = Role.RadioButton, enabled = !state.loading, onClick = { onSelect(provider) })
+                        .padding(horizontal = 18.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(provider.label, Modifier.weight(1f), color = if (selected) Ink else Paper, fontWeight = FontWeight.Bold)
+                        if (selected) Icon(Icons.Default.CheckCircle, null, tint = Red)
+                    }
+                }
+            }
+            if (state.provider.requiresKey) {
+                Text("Для перевода нужен API-ключ выбранного сервиса. Ключ сохраняется зашифрованным на этом устройстве.", color = Muted, style = MaterialTheme.typography.bodyMedium)
+                OutlinedTextField(state.key, onKey, Modifier.fillMaxWidth().padding(top = 12.dp), label = { Text("API-ключ") },
+                    placeholder = { Text(if (state.hasKey) "Ключ сохранён — оставьте поле пустым" else "Вставьте ваш API-ключ") },
+                    visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    singleLine = true, enabled = !state.loading)
+                OutlinedTextField(state.model, onModel, Modifier.fillMaxWidth().padding(top = 12.dp), label = { Text("Модель") }, singleLine = true, enabled = !state.loading)
+                if (state.provider == TranslationProvider.CUSTOM) {
+                    OutlinedTextField(state.baseUrl, onUrl, Modifier.fillMaxWidth().padding(top = 12.dp), label = { Text("Адрес API") },
+                        placeholder = { Text("https://example.com/v1") }, singleLine = true, enabled = !state.loading)
+                    Text("Для сервисов с совместимым форматом OpenAI Chat Completions.", color = Muted, style = MaterialTheme.typography.bodySmall)
+                }
+                if (state.hasKey) TextButton(onClick = onRemove, enabled = !state.loading) { Text("Удалить сохранённый ключ", color = Gold) }
+            } else {
+                Text("MyMemory работает без API-ключа. Переводится только выбранный блок текста.", color = Muted, style = MaterialTheme.typography.bodyMedium)
+            }
+            ErrorMessage(state.error)
+            ActionButton(if (state.loading) "ПОДОЖДИТЕ…" else "СОХРАНИТЬ ПЕРЕВОДЧИКА", Modifier.padding(top = 16.dp), enabled = !state.loading, onClick = onSave)
+            TextButton(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text("Закрыть", color = Paper) }
         }
     }
 }

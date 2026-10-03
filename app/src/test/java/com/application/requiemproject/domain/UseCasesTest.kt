@@ -27,7 +27,8 @@ class UseCasesTest {
         val search = SearchHelpUseCase(LocalHelpRepository())
         assertEquals(listOf(4), search("  СНИМКИ  ", "Приватность").map { it.id })
         assertTrue(search("снимки", "Начало").isEmpty())
-        assertEquals(6, search("", "Все").size)
+        assertEquals(7, search("", "Все").size)
+        assertEquals(listOf(7), search("Claude", "Перевод").map { it.id })
         assertTrue(search("нет такого запроса", "Все").isEmpty())
     }
 

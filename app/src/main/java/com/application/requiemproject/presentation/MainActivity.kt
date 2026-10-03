@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         setContent {
-            RequiemApp(account, home, help, navigation, ::requestCapture,
+            RequiemApp(account, home, help, navigation, { home.prepareCapture(::requestCapture) },
                 { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) })
         }
     }

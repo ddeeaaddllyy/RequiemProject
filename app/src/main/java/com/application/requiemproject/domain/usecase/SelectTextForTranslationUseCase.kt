@@ -38,7 +38,7 @@ class SelectTextForTranslationUseCase(private val translator: TranslatorModel) {
         try {
             val result = if (settings.sourceLanguage == settings.targetLanguage) {
                 TranslationResult.Success(block.text)
-            } else translator.translate(block.text, settings.languagePair)
+            } else translator.translate(block.text, settings)
             mutableBlocks.update { entries ->
                 entries.map { entry ->
                     if (entry.source != block || entry.requestId != requestId) entry

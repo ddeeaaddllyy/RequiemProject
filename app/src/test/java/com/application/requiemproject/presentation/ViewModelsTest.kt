@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.application.requiemproject.domain.model.*
 import com.application.requiemproject.domain.repository.AccountRepository
 import com.application.requiemproject.domain.repository.SettingsRepository
+import com.application.requiemproject.domain.repository.ProviderConfigurationRepository
 import com.application.requiemproject.domain.usecase.*
 import com.application.requiemproject.presentation.account.AccountViewModel
 import com.application.requiemproject.presentation.home.HomeViewModel
@@ -27,7 +28,11 @@ class ViewModelsTest {
             override val settings = MutableStateFlow(TranslationSettings(AppLanguage.ENGLISH, AppLanguage.RUSSIAN, ScanSource.OCR))
             override fun save(settings: TranslationSettings) { this.settings.value = settings }
         }
-        val viewModel = HomeViewModel(TranslationSettingsUseCase(repository), SavedStateHandle())
+        val credentials = object : ProviderConfigurationRepository {
+            override suspend fun read(provider: TranslationProvider) = ProviderConfiguration(model = provider.defaultModel)
+            override suspend fun save(provider: TranslationProvider, configuration: ProviderConfiguration) = Unit
+        }
+        val viewModel = HomeViewModel(TranslationSettingsUseCase(repository), SavedStateHandle(), ProviderSettingsUseCase(credentials))
         viewModel.openLanguages(false)
         viewModel.selectLanguage(AppLanguage.JAPANESE)
         assertNull(viewModel.languagePicker.value)
@@ -40,6 +45,30 @@ class ViewModelsTest {
         assertEquals(Destination.PROFILE, viewModel.destination.value)
         viewModel.navigate(Destination.HELP)
         assertEquals(Destination.HELP, saved.get<Destination>("destination"))
+    }
+
+    @Test fun providerEditorSavesSelectionButNeverPutsKeyInSavedState() = runTest {
+        val repository = object : SettingsRepository {
+            override val settings = MutableStateFlow(TranslationSettings(AppLanguage.ENGLISH, AppLanguage.RUSSIAN, ScanSource.OCR))
+            override fun save(settings: TranslationSettings) { this.settings.value = settings }
+        }
+        val credentials = object : ProviderConfigurationRepository {
+            var configuration = ProviderConfiguration(model = "gpt-4.1-mini")
+            override suspend fun read(provider: TranslationProvider) = configuration
+            override suspend fun save(provider: TranslationProvider, configuration: ProviderConfiguration) { this.configuration = configuration }
+        }
+        val saved = SavedStateHandle()
+        val viewModel = HomeViewModel(TranslationSettingsUseCase(repository), saved, ProviderSettingsUseCase(credentials))
+        viewModel.selectProvider(TranslationProvider.OPENAI)
+        advanceUntilIdle()
+        viewModel.providerKey("only-test-key")
+        viewModel.saveProvider()
+        advanceUntilIdle()
+        assertEquals(TranslationProvider.OPENAI, repository.settings.value.provider)
+        assertEquals("only-test-key", credentials.configuration.apiKey)
+        assertFalse(viewModel.providerEditor.value.visible)
+        assertEquals("", viewModel.providerEditor.value.key)
+        assertTrue(saved.keys().none { saved.get<Any>(it)?.toString()?.contains("only-test-key") == true })
     }
 
     @Test fun failedLoginShowsErrorAndGuestEntryClearsPassword() = runTest {

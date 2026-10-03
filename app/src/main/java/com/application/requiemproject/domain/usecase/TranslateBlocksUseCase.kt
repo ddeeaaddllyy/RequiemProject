@@ -31,7 +31,7 @@ class TranslateBlocksUseCase(
 
         blocks.map { blocks ->
             async {
-                val result = currentTranslator.translate(blocks.text, settings.languagePair)
+                val result = currentTranslator.translate(blocks.text, settings)
                 val outputText = when (result) {
                     is TranslationResult.Success -> result.text
                     is TranslationResult.Error -> blocks.text

@@ -65,9 +65,11 @@ fun RequiemApp(account: AccountViewModel, home: HomeViewModel, help: HelpViewMod
                                 val settings by home.settings.collectAsStateWithLifecycle()
                                 val picker by home.languagePicker.collectAsStateWithLifecycle()
                                 val message by home.captureMessage.collectAsStateWithLifecycle()
+                                val providerEditor by home.providerEditor.collectAsStateWithLifecycle()
                                 HomeScreen(settings, picker, message, home::openLanguages, home::closeLanguages, home::selectLanguage,
                                     home::swapLanguages, home::selectScanSource, onStartCapture, onAccessibilitySettings,
-                                    { navigation.navigate(Destination.HELP) })
+                                    { navigation.navigate(Destination.HELP) }, providerEditor, home::openProviders, home::closeProviders,
+                                    home::selectProvider, home::providerKey, home::providerModel, home::providerUrl, home::saveProvider, home::removeProviderKey)
                             }
                             Destination.HELP -> {
                                 val query by help.query.collectAsStateWithLifecycle()
