@@ -1,43 +1,11 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-
-    <style
-        name="Base.Theme.RequiemProject"
-        parent="Theme.Material3.DayNight.NoActionBar">
-
+<resources>
+    <style name="Theme.RequiemProject" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowBackground">#0D0D10</item>
+        <item name="android:colorAccent">#F32040</item>
+        <item name="android:statusBarColor">#0D0D10</item>
+        <item name="android:navigationBarColor">#0D0D10</item>
     </style>
-
-    <style
-        name="Theme.RequiemProject"
-        parent="Base.Theme.RequiemProject">
-
-    </style>
-
-    <style
-        name="SoftRoundedCorners">
-
-        <item
-            name="cornerSize">12dp
-        </item>
-
-    </style>
-
-    <style
-        name="BottomSheetTheme"
-        parent="Theme.Material3.DayNight.BottomSheetDialog">
-
-        <item
-            name="bottomSheetStyle">@style/BottomSheetStyle
-        </item>
-    </style>
-
-    <style
-        name="BottomSheetStyle"
-        parent="Widget.Material3.BottomSheet">
-
-        <item
-            name="android:background">@android:color/transparent
-        </item>
-    </style>
-
-
 </resources>

@@ -1,5 +1,4 @@
 *.iml
-/local.properties
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
@@ -8,19 +7,15 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+/.kotlin
+/.idea/
 /captures
 .externalNativeBuild
 .cxx
-local.properties
 *.log
-/gradlew.bat
-/gradle/libs.versions.toml
 /app/src/androidTest/java/com/application/requiemproject/ExampleInstrumentedTest.kt
 /app/src/test/java/com/application/requiemproject/ExampleUnitTest.kt
 *.pro
-/gradlew
-/gradle.properties
-/gradle/wrapper/gradle-wrapper.properties
 /.idea/discord.xml
 /.idea
 /.gradle/buildOutputCleanup/buildOutputCleanup.lock

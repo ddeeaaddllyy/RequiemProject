@@ -1,0 +1,6 @@
+/build
+.idea/
+.kotlin/
+gradle/
+app/src/androidTest/java/com/application/requiemproject/ExampleInstrumentedTest.kt
+app/src/test/java/com/application/requiemproject/ExampleUnitTest.kt

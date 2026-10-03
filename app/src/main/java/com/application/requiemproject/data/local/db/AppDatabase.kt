@@ -26,9 +26,6 @@ public abstract class AppDatabase: RoomDatabase() {
                     AppDatabase::class.java,
                     "requiem_database"
                 )
-                    .allowMainThreadQueries()
-                    //DELETE IN FINAL VERSION
-                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

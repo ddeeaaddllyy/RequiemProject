@@ -18,39 +18,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RequiemProject">
 
-        <activity
-            android:name=".ui.auth.LoginActivity"
-            android:exported="true"
-            android:theme="@style/Theme.RequiemProject">
+        <activity android:name=".presentation.MainActivity" android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.auth.RegisterActivity"
-            android:exported="false"
-            android:label="register RP"
-            android:theme="@style/Theme.RequiemProject">
-        </activity>
-
-
-        <activity
-            android:name=".ui.MainActivity"
-            android:exported="false"
-            android:label="Main menu"
-            android:theme="@style/Theme.RequiemProject" >
-        </activity>
-
         <service
-            android:name=".services.ScreenCaptureService"
+            android:name=".data.platform.service.ScreenCaptureService"
             android:foregroundServiceType="mediaProjection"
             android:exported="false">
         </service>
 
         <service
-            android:name=".services.AccessibilityCaptureService"
+            android:name=".data.platform.service.AccessibilityCaptureService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:description="@string/accessibility_description"
             android:exported="false">
