@@ -10,10 +10,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+enum class AuthenticationSuccess { LOGIN, REGISTRATION }
+
 data class AccountUiState(
     val account: Account? = null,
     val loading: Boolean = true,
     val restoring: Boolean = true,
+    val authenticationSuccess: AuthenticationSuccess? = null,
     val guest: Boolean = false,
     val login: String = "",
     val password: String = "",
@@ -49,10 +52,14 @@ class AccountViewModel(private val accounts: AccountUseCase) : ViewModel() {
         viewModelScope.launch {
             try {
                 val account = accounts.authenticate(input.login, input.password, input.register)
-                mutableState.update { it.copy(account = account, loading = false, guest = false, password = "", email = account.email.orEmpty()) }
+                mutableState.update { it.copy(account = account, loading = false, guest = false, password = "", email = account.email.orEmpty(),
+                    authenticationSuccess = if (input.register) AuthenticationSuccess.REGISTRATION else AuthenticationSuccess.LOGIN) }
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (error: Exception) { mutableState.update { it.copy(loading = false, error = if (error is IllegalArgumentException) error.message else "Не удалось войти. Попробуйте ещё раз.") } }
         }
+    }
+    fun finishAuthenticationAnimation() {
+        mutableState.update { it.copy(authenticationSuccess = null) }
     }
     fun saveProfile() {
         if (state.value.loading) return

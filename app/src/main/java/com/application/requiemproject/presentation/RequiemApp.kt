@@ -36,8 +36,9 @@ fun RequiemApp(account: AccountViewModel, home: HomeViewModel, help: HelpViewMod
     val accountState by account.state.collectAsStateWithLifecycle()
     val destination by navigation.destination.collectAsStateWithLifecycle()
     val authenticated = accountState.account != null || accountState.guest
+    BackHandler(accountState.authenticationSuccess != null) { account.finishAuthenticationAnimation() }
     BackHandler(!authenticated && accountState.register) { account.toggleRegistration() }
-    BackHandler(authenticated && destination != Destination.HOME && !accountState.editing) { navigation.navigate(Destination.HOME) }
+    BackHandler(authenticated && accountState.authenticationSuccess == null && destination != Destination.HOME && !accountState.editing) { navigation.navigate(Destination.HOME) }
     RequiemTheme {
         RequiemBackground {
             Column(Modifier.fillMaxSize().safeDrawingPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -51,6 +52,11 @@ fun RequiemApp(account: AccountViewModel, home: HomeViewModel, help: HelpViewMod
                     Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = Red)
                     }
+                } else if (accountState.authenticationSuccess != null) {
+                    AuthenticationSuccessScreen(
+                        accountState.authenticationSuccess!!, accountState.account?.name.orEmpty(),
+                        account::finishAuthenticationAnimation, Modifier.weight(1f).fillMaxWidth()
+                    )
                 } else if (!authenticated) {
                     Box(Modifier.weight(1f).widthIn(max = 600.dp)) {
                         AuthScreen(accountState, account::login, account::password, account::authenticate, account::toggleRegistration, account::guest)

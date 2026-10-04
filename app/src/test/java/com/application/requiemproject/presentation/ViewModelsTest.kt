@@ -7,6 +7,7 @@ import com.application.requiemproject.domain.repository.SettingsRepository
 import com.application.requiemproject.domain.repository.ProviderConfigurationRepository
 import com.application.requiemproject.domain.usecase.*
 import com.application.requiemproject.presentation.account.AccountViewModel
+import com.application.requiemproject.presentation.account.AuthenticationSuccess
 import com.application.requiemproject.presentation.home.HomeViewModel
 import com.application.requiemproject.presentation.navigation.*
 import kotlinx.coroutines.Dispatchers
@@ -88,9 +89,47 @@ class ViewModelsTest {
         assertFalse(viewModel.state.value.loading)
         assertNotNull(viewModel.state.value.error)
         assertNull(viewModel.state.value.account)
+        assertNull(viewModel.state.value.authenticationSuccess)
         viewModel.guest()
         assertTrue(viewModel.state.value.guest)
         assertEquals("", viewModel.state.value.password)
         assertNull(viewModel.state.value.error)
+    }
+
+    @Test fun onlyExplicitLoginAndRegistrationRequestTheSuccessAnimation() = runTest {
+        val profile = Account(17L, "rebel", null)
+        val repository = object : AccountRepository {
+            var current: Account? = profile
+            override suspend fun current() = current
+            override suspend fun signIn(login: String, password: String) = profile
+            override suspend fun register(login: String, password: String) = profile
+            override suspend fun updateEmail(email: String) = Unit
+            override fun signOut() { current = null }
+        }
+        val viewModel = AccountViewModel(AccountUseCase(repository))
+        advanceUntilIdle()
+        assertEquals(profile, viewModel.state.value.account)
+        assertNull(viewModel.state.value.authenticationSuccess)
+        viewModel.signOut()
+        viewModel.login("rebel")
+        viewModel.password("secret1")
+        viewModel.authenticate()
+        advanceUntilIdle()
+        assertEquals(AuthenticationSuccess.LOGIN, viewModel.state.value.authenticationSuccess)
+        assertEquals("", viewModel.state.value.password)
+        viewModel.finishAuthenticationAnimation()
+        viewModel.editProfile(true)
+        assertNull(viewModel.state.value.authenticationSuccess)
+        viewModel.signOut()
+        viewModel.toggleRegistration()
+        viewModel.login("rebel")
+        viewModel.password("secret1")
+        viewModel.authenticate()
+        advanceUntilIdle()
+        assertEquals(AuthenticationSuccess.REGISTRATION, viewModel.state.value.authenticationSuccess)
+        viewModel.signOut()
+        assertNull(viewModel.state.value.authenticationSuccess)
+        viewModel.guest()
+        assertNull(viewModel.state.value.authenticationSuccess)
     }
 }
