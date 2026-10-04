@@ -12,10 +12,28 @@ import com.application.requiemproject.presentation.MainActivity
 import org.junit.Rule
 import org.junit.rules.RuleChain
 import org.junit.Test
+import org.junit.Before
+import org.junit.After
+import org.koin.core.context.GlobalContext
+import com.application.requiemproject.data.repository.TranslationSettingsRepository
+import com.application.requiemproject.domain.model.AppLanguage
+import com.application.requiemproject.domain.model.ScanSource
+import com.application.requiemproject.domain.model.TranslationSettings
 
 class ComposeNavigationTest {
     val compose = createAndroidComposeRule<MainActivity>()
     @get:Rule val rules: RuleChain = RuleChain.outerRule(SignedOutRule()).around(compose)
+    private lateinit var originalSettings: TranslationSettings
+
+    @Before fun prepareLanguages() {
+        val settings = GlobalContext.get().get<TranslationSettingsRepository>()
+        originalSettings = settings.getSettings()
+        settings.save(TranslationSettings(AppLanguage.ENGLISH, AppLanguage.RUSSIAN, ScanSource.OCR))
+    }
+
+    @After fun restoreLanguages() {
+        if (::originalSettings.isInitialized) GlobalContext.get().get<TranslationSettingsRepository>().save(originalSettings)
+    }
 
     @Test fun guestCanChooseLanguageSearchHelpAndOpenProfile() {
         compose.waitUntil(10_000) {

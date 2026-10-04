@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/ddeeaaddllyy/Requiem-Project/actions/workflows/ci.yml"><img src="https://github.com/ddeeaaddllyy/Requiem-Project/actions/workflows/ci.yml/badge.svg" alt="Android CI"></a>
   <img src="https://img.shields.io/badge/Android-12%2B-F51B42?style=flat-square&logo=android&logoColor=white" alt="Android 12+">
-  <img src="https://img.shields.io/badge/Kotlin-2.4.2-17171B?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin 2.0.0">
+  <img src="https://img.shields.io/badge/Kotlin-2.4.20-17171B?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin 2.4.20">
   <img src="https://img.shields.io/badge/UI-Jetpack_Compose-17171B?style=flat-square" alt="Jetpack Compose">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-D8B45B?style=flat-square" alt="Apache License 2.0"></a>
 </p>
@@ -159,11 +159,11 @@ flowchart TB
 
 | Задача | Решение |
 | --- | --- |
-| Язык | Kotlin 2.0.0, JVM target 17 |
+| Язык | Kotlin 2.4.20, JVM target 17 |
 | UI | Jetpack Compose, Material 3, собственные формы в духе Persona 5 Royal |
 | Состояние и асинхронность | ViewModel, StateFlow, Kotlin Coroutines |
 | Dependency injection | Koin 4.0.4 |
-| Локальная база | Room 2.6.1, KSP |
+| Локальная база | Room 2.8.4, KSP 2.3.12 |
 | Сеть | Retrofit 2.9.0, OkHttp, Gson |
 | Распознавание | Google ML Kit Text Recognition |
 | Захват и наложение | MediaProjection, foreground service, WindowManager, AccessibilityService |
