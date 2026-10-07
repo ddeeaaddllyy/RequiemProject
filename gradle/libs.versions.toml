@@ -1,5 +1,6 @@
 [versions]
 koin = "4.0.4"
+lottie = "6.7.1"
 activityCompose = "1.13.0"
 agp = "8.13.2"
 composeBom = "2024.09.03"
@@ -19,6 +20,7 @@ savedstateKtx = "1.2.1"
 textRecognition = "16.0.1"
 
 [libraries]
+lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }

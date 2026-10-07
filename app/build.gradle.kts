@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.lottie.compose)
     implementation(libs.koin.android)
     constraints {
         implementation("androidx.fragment:fragment:1.8.5") {
